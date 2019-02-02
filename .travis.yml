@@ -1,0 +1,69 @@
+---
+
+sudo: true
+
+dist: xenial
+language: python
+python:
+  - '3.6'
+  - '3.7'
+
+cache: pip
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+# Only execute travis in master, PR to master or tags
+branches:
+  only:
+    - master
+    - /^[0-9]*\.[0-9]*\.[0-9]*$/
+
+install:
+  - make requirements_test
+script:
+  - make test
+
+matrix:
+  fast_finish: true
+
+jobs:
+  include:
+    - stage: "update-dependencies"
+      if: branch = master AND type != pull_request AND tag IS NOT present
+      install:
+        - make requirements_test
+      script:
+        - bash .ci/update_dependencies.sh
+      env:
+        secure: "PDyDvOZktSGAjkUQXLjhDoVBN5BYJOAjCKzMP82UNX9SihPvod2MU8YRKMYwq1e2yewjxn4XF4M5cp++gCcidrOCp7XjkqUjDifMaoyCJV0W9OjOARhw8cAkzqvRxYDnjO7h9xWTA+sm6lwdGZHSMiiNKGbw6CuH/+6YY4IOiCG3zvpIYZrxywVGwe6BvFuq044X9lDWdMWzZ5n9BuhmvJ9pLvOUJeN6T4B6g9f2I0aj7fL5QynCJXahUy1adpXcLdoLL5nKs81qLVmSdRlF+IuVjD/oN5fIWoP4uAiAQi3buXzTYnge1vbLuqxpfelKTEtD6UnhzJJxzBIDd2ys+ayM1wA5fcUJvJu/VXMCaA7m4JkNEn0DswuNp0EHlPsou0oPvs7vGZbHPlL4uQ72zGsLeXsbxas55wdU8vhvdyBeULgFWA4MPe24Ziup5uK7HF755o7S0QUQQscSMglmgjVlLnN6EnDihHoTGsg/feMg4rX4spkISb48HqJCGFb4plzkQAyJ39+j470yBhnfwLbbLoV/MQzPmkoSCsGHCIhB7GuUneC37tksYxhTYUiaC7SicEeJ9HGqDBERwZpBG81ZQche4p6OuRIZMyvvJNL2fIDSf6bQXveToWmzWbwCm/d4luGb9kkn1i3ySofUH5RstO4iJJlt1SiX2Qdq3ig="
+    - stage: "tag version"
+      if: branch = master AND type != pull_request AND tag IS NOT present
+      script:
+        - bash .ci/tag_version.sh
+      env:
+        secure: "PDyDvOZktSGAjkUQXLjhDoVBN5BYJOAjCKzMP82UNX9SihPvod2MU8YRKMYwq1e2yewjxn4XF4M5cp++gCcidrOCp7XjkqUjDifMaoyCJV0W9OjOARhw8cAkzqvRxYDnjO7h9xWTA+sm6lwdGZHSMiiNKGbw6CuH/+6YY4IOiCG3zvpIYZrxywVGwe6BvFuq044X9lDWdMWzZ5n9BuhmvJ9pLvOUJeN6T4B6g9f2I0aj7fL5QynCJXahUy1adpXcLdoLL5nKs81qLVmSdRlF+IuVjD/oN5fIWoP4uAiAQi3buXzTYnge1vbLuqxpfelKTEtD6UnhzJJxzBIDd2ys+ayM1wA5fcUJvJu/VXMCaA7m4JkNEn0DswuNp0EHlPsou0oPvs7vGZbHPlL4uQ72zGsLeXsbxas55wdU8vhvdyBeULgFWA4MPe24Ziup5uK7HF755o7S0QUQQscSMglmgjVlLnN6EnDihHoTGsg/feMg4rX4spkISb48HqJCGFb4plzkQAyJ39+j470yBhnfwLbbLoV/MQzPmkoSCsGHCIhB7GuUneC37tksYxhTYUiaC7SicEeJ9HGqDBERwZpBG81ZQche4p6OuRIZMyvvJNL2fIDSf6bQXveToWmzWbwCm/d4luGb9kkn1i3ySofUH5RstO4iJJlt1SiX2Qdq3ig="
+    - stage: "deploy"
+      install:
+        - pip install -r requirements.txt
+      script: skip
+      if: type != pull_request AND tag IS present
+      #before_deploy:
+      #  - export BODY="$(git log $(git describe --tags --abbrev=1 HEAD^^)..HEAD^ --pretty=format:'- %s'  | jq -aR .)"
+      deploy:
+        - provider: pypi
+          user: "pando85"
+          password:
+            secure: "R2EI0w4tJBO1rjfu6WPZW7lk1DRJxKbKZI6je1PM5c9I/0S1slhw6oEW2i9ElL9SzZwUuqpoZBmNMhiRkxXO1AAMv9KV+3HMjut8TyAohUvdZidxQhd5gDis3u0HCInP2jRSU/1l+E/L60O/beN5t6k7TyRXnq95IhX2j9XWAPdkLkiUEi1lZ+z5kd47aBtRWSpj6xGj8ku6eUm0TyIDYJUghRf6Nfe6JJ3e5oiiT7aO1JXF3JIyEqwzoS0Eo2AvkBQXD4kycNEtEwmMYaVZozyLi10wrwfJaLpMn+79vRzaynUKDa5suWdKKtdbD8zi4ilLDKQVilDcmFoOT8seLKfuwexy06RDuYtFFTjbzP57UjMM/KpjipiLWbQGcKFNMKTUpcca93ALlL3VR2hm1ezkCLakpQj+vLGAwjcX6Egk1UsMlEi+QkLIwp0LGTNNuTcBFUb7Khru64oGqVGwnKvyRrATDPyj/7hlGAy5BMr238cMe1zzDSd7ik+wRALjOiSlGmqEJMDipdkFdBzwkHJnrfdjdcTvSCTAHcIbfjsJR7BMT3fD9PPRcp5VrjSQTUTKMOi3TaIEfDndyLQ+8xJlAiYMjkP0r8Y7+r2SKvq8B7KEeu1WApS+2KWqM+SC7NxMdU3lf+3ZcEzv3im3FnDYMUhYf05LFvkdl0CAPH4="
+          distributions: "bdist_wheel"
+          on:
+            tags: true
+        - provider: releases
+          api_key: "$GITHUB_TOKEN"
+#          body: "$BODY"
+          file_glob: true
+          file: dist/*
+          skip_cleanup: true
+          on:
+            tags: true
+      env:
+        secure: "PDyDvOZktSGAjkUQXLjhDoVBN5BYJOAjCKzMP82UNX9SihPvod2MU8YRKMYwq1e2yewjxn4XF4M5cp++gCcidrOCp7XjkqUjDifMaoyCJV0W9OjOARhw8cAkzqvRxYDnjO7h9xWTA+sm6lwdGZHSMiiNKGbw6CuH/+6YY4IOiCG3zvpIYZrxywVGwe6BvFuq044X9lDWdMWzZ5n9BuhmvJ9pLvOUJeN6T4B6g9f2I0aj7fL5QynCJXahUy1adpXcLdoLL5nKs81qLVmSdRlF+IuVjD/oN5fIWoP4uAiAQi3buXzTYnge1vbLuqxpfelKTEtD6UnhzJJxzBIDd2ys+ayM1wA5fcUJvJu/VXMCaA7m4JkNEn0DswuNp0EHlPsou0oPvs7vGZbHPlL4uQ72zGsLeXsbxas55wdU8vhvdyBeULgFWA4MPe24Ziup5uK7HF755o7S0QUQQscSMglmgjVlLnN6EnDihHoTGsg/feMg4rX4spkISb48HqJCGFb4plzkQAyJ39+j470yBhnfwLbbLoV/MQzPmkoSCsGHCIhB7GuUneC37tksYxhTYUiaC7SicEeJ9HGqDBERwZpBG81ZQche4p6OuRIZMyvvJNL2fIDSf6bQXveToWmzWbwCm/d4luGb9kkn1i3ySofUH5RstO4iJJlt1SiX2Qdq3ig="
