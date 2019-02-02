@@ -17,11 +17,11 @@ Old code example:
 async def create_user_handler(request) -> Response:
     try:
         user = check_valid_user(request)
-    execption InvalidBody:
+    except InvalidBody:
         return_422('Invalid body')
     try:
         create_user(user)
-    execption UserAlreadyExists:
+    except UserAlreadyExists:
         return_409('User already exists')
     return_201(user)
 ```
