@@ -38,6 +38,8 @@ jobs:
         secure: "PDyDvOZktSGAjkUQXLjhDoVBN5BYJOAjCKzMP82UNX9SihPvod2MU8YRKMYwq1e2yewjxn4XF4M5cp++gCcidrOCp7XjkqUjDifMaoyCJV0W9OjOARhw8cAkzqvRxYDnjO7h9xWTA+sm6lwdGZHSMiiNKGbw6CuH/+6YY4IOiCG3zvpIYZrxywVGwe6BvFuq044X9lDWdMWzZ5n9BuhmvJ9pLvOUJeN6T4B6g9f2I0aj7fL5QynCJXahUy1adpXcLdoLL5nKs81qLVmSdRlF+IuVjD/oN5fIWoP4uAiAQi3buXzTYnge1vbLuqxpfelKTEtD6UnhzJJxzBIDd2ys+ayM1wA5fcUJvJu/VXMCaA7m4JkNEn0DswuNp0EHlPsou0oPvs7vGZbHPlL4uQ72zGsLeXsbxas55wdU8vhvdyBeULgFWA4MPe24Ziup5uK7HF755o7S0QUQQscSMglmgjVlLnN6EnDihHoTGsg/feMg4rX4spkISb48HqJCGFb4plzkQAyJ39+j470yBhnfwLbbLoV/MQzPmkoSCsGHCIhB7GuUneC37tksYxhTYUiaC7SicEeJ9HGqDBERwZpBG81ZQche4p6OuRIZMyvvJNL2fIDSf6bQXveToWmzWbwCm/d4luGb9kkn1i3ySofUH5RstO4iJJlt1SiX2Qdq3ig="
     - stage: "tag version"
       if: branch = master AND type != pull_request AND tag IS NOT present
+      install:
+        - pip install -r requirements.txt
       script:
         - bash .ci/tag_version.sh
       env:
