@@ -1,3 +1,7 @@
+# 0.0.3
+
+- make dependencies more flexible without fixed versions
+
 # 0.0.2
 
 - Add basic documentation

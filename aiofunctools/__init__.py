@@ -5,7 +5,7 @@ from toolz import curry
 from typing import Callable, TypeVar
 
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 T = TypeVar('T')
 
