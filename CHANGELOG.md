@@ -1,5 +1,10 @@
 # 0.0.3
 
+- Fix/make dependencies more flexible (#4)
+- Update changelog
+
+# 0.0.3
+
 - make dependencies more flexible without fixed versions
 
 # 0.0.2
@@ -13,5 +18,3 @@
 - Remove vscode files
 - Update README
 - Update toolz to 0.10.0
-
-
